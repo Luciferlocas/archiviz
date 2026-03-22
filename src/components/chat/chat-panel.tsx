@@ -6,6 +6,7 @@ import PromptInput from "./prompt-input";
 import DiagramPanel from "./diagram-panel";
 import { useChat } from "@/store";
 import { Message } from "@/lib/types";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function ChatPanel() {
   const {
@@ -20,6 +21,7 @@ export default function ChatPanel() {
     setIsLoading,
     setActiveDiagram,
   } = useChat();
+  const isMobile = useIsMobile();
 
   const extractMermaid = (text: string) => {
     const regex = /```mermaid\n([\s\S]*?)```/g;
@@ -122,9 +124,13 @@ export default function ChatPanel() {
   ]);
 
   return (
-    <div className="flex h-screen bg-stone-950 text-stone-200 font-sans overflow-hidden">
+    <div className="flex h-dvh bg-stone-950 text-stone-200 font-sans overflow-hidden">
       <div
-        className={`flex flex-col h-full transition-all duration-500 ease-in-out ${activeDiagram ? "w-1/2 border-r border-stone-800" : "w-full max-w-4xl mx-auto"}`}
+        className={`flex flex-col h-full transition-all duration-500 ease-in-out ${
+          activeDiagram && !isMobile
+            ? "w-1/2 border-r border-stone-800"
+            : "w-full max-w-4xl mx-auto"
+        }`}
       >
         <ChatMessages />
         <PromptInput onSend={handleSend} />
