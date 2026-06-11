@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Settings } from "lucide-react";
 import {
   Dialog,
@@ -13,22 +13,34 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useChat } from "@/store";
-import type { Tone } from "@/lib/types";
+import { useLocalStorage } from "@/hooks/use-local-storage";
+import type { Tone, Preferences } from "@/lib/types";
 
 export default function PreferencesDialog() {
   const [isOpen, setIsOpen] = useState(false);
   const { preferences, setPreferences } = useChat();
+  
+  const [localPrefs, setLocalPrefs] = useLocalStorage<Preferences>(
+    "chat-preferences",
+    preferences
+  );
+
+  useEffect(() => {
+    if (localPrefs) {
+      setPreferences(localPrefs);
+    }
+  }, [localPrefs, setPreferences]);
 
   const handleLanguageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPreferences({ ...preferences, language: e.target.value });
+    setLocalPrefs({ ...localPrefs, language: e.target.value });
   };
 
   const handleAgeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPreferences({ ...preferences, age: e.target.value });
+    setLocalPrefs({ ...localPrefs, age: e.target.value });
   };
 
   const handleToneChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setPreferences({ ...preferences, tone: e.target.value as Tone });
+    setLocalPrefs({ ...localPrefs, tone: e.target.value as Tone });
   };
 
   return (
@@ -56,7 +68,7 @@ export default function PreferencesDialog() {
             </label>
             <Input
               type="text"
-              value={preferences.language}
+              value={localPrefs.language}
               onChange={handleLanguageChange}
               placeholder="e.g., Hindi, Kannada, Spanish"
               className="bg-stone-950 border-stone-800 text-stone-200"
@@ -69,7 +81,7 @@ export default function PreferencesDialog() {
             </label>
             <Input
               type="number"
-              value={preferences.age}
+              value={localPrefs.age}
               onChange={handleAgeChange}
               className="bg-stone-950 border-stone-800 text-stone-200"
             />
@@ -80,7 +92,7 @@ export default function PreferencesDialog() {
               AI Persona Tone
             </label>
             <select
-              value={preferences.tone}
+              value={localPrefs.tone}
               onChange={handleToneChange}
               className="w-full px-4 py-3 bg-stone-950 border border-stone-800 rounded-lg focus:border-stone-600 outline-none text-stone-200 transition-all appearance-none cursor-pointer"
             >
@@ -105,3 +117,4 @@ export default function PreferencesDialog() {
     </Dialog>
   );
 }
+
